@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { useStateValue } from "../../StateProvider";
 
 const Header = () => {
+  // eslint-disable-next-line
   const [{ basket, user }, dispatch] = useStateValue();
 
   return (

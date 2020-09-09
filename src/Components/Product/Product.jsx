@@ -33,6 +33,7 @@ const Product = ({ id, title, image, price, rating }) => {
           {Array(rating)
             .fill()
             .map((_, i) => (
+              // eslint-disable-next-line
               <p>⭐️</p>
             ))}
         </div>
