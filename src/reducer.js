@@ -5,8 +5,7 @@ export const initialState = {
 
 // Selector
 export const getBasketTotal = (basket) => {
-  // Destructuring
-  // return basket.reduce((amount, { price }) => amount + price, 0);
+  // return basket?.reduce((amount, { price }) => amount + price, 0); // Destructured
   return basket?.reduce((amount, item) => amount + item.price, 0);
 };
 
