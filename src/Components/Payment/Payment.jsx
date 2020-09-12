@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Payment.css";
 import { useStateValue } from "../../StateProvider";
 import CheckoutProduct from "../CheckoutProduct/CheckoutProduct";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getBasketTotal } from "./../../reducer";
 import CurrencyFormat from "react-currency-format";
+import axios from "./../../axios";
 
 const Payment = () => {
+  // eslint-disable-next-line
   const [{ basket, user }, dispath] = useStateValue();
+  const history = useHistory();
 
   const stripe = useStripe();
   const elements = useElements();
@@ -18,9 +21,43 @@ const Payment = () => {
   const [processing, setProcessing] = useState("");
   const [error, setError] = useState(null);
   const [disabled, setDisabled] = useState(true);
+  const [clientSecret, setClientSecret] = useState(true);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    // generate the special stripe secret which allows us to charge a customer
+    const getClientSecret = async () => {
+      const response = await axios({
+        method: "post",
+        // Stripe expects the total in currencies subunits
+        url: `/payments/create?total=${getBasketTotal(basket) * 100}`,
+      });
+      setClientSecret(response.data.clientSecret);
+      console.log("response from server", response.data.clientSecret);
+    };
+    getClientSecret();
+  }, [basket]);
+
+  console.log("The Secret is ", clientSecret);
+
+  const handleSubmit = async (e) => {
     //   do all the fancy stripe stuff
+    e.preventDefault();
+    setProcessing(true);
+
+    const payload = await stripe
+      .confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: elements.getElement(CardElement),
+        },
+      })
+      .then(({ paymentIntent }) => {
+        // paymenyIntent = paymnet confirmation
+        setSucceeded(true);
+        setError(null);
+        setProcessing(false);
+
+        history.replaceState("/orders");
+      });
   };
 
   const handleChange = (e) => {
