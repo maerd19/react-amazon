@@ -10,6 +10,7 @@ import Home from "./Components/Home/Home";
 import Checkout from "./Components/Checkout/Checkout";
 import Login from "./Components/Login/Login";
 import Payment from "./Components/Payment/Payment";
+import Orders from "./Components/Orders/Orders";
 
 const promise = loadStripe(
   "pk_test_51HQGCBBmLNNnOH7AJxjCTX9yNAQJU91aVbxhjmdSKYkfLnZ3m98FfDkfd6CtzWmdQBsV5yF3il19205R6TQB9OJh00Rst6Fy1g"
@@ -45,6 +46,10 @@ function App() {
     <Router>
       <div className="App">
         <Switch>
+          <Route path="/orders">
+            <Header />
+            <Orders />
+          </Route>
           <Route path="/login">
             <Login />
           </Route>

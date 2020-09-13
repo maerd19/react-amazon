@@ -7,6 +7,7 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { getBasketTotal } from "./../../reducer";
 import CurrencyFormat from "react-currency-format";
 import axios from "./../../axios";
+import { db } from "./../../firebase";
 
 const Payment = () => {
   // eslint-disable-next-line
@@ -32,12 +33,12 @@ const Payment = () => {
         url: `/payments/create?total=${getBasketTotal(basket) * 100}`,
       });
       setClientSecret(response.data.clientSecret);
-      console.log("response from server", response.data.clientSecret);
     };
     getClientSecret();
   }, [basket]);
 
   console.log("The Secret is ", clientSecret);
+  console.log("user", user);
 
   const handleSubmit = async (e) => {
     //   do all the fancy stripe stuff
@@ -51,12 +52,26 @@ const Payment = () => {
         },
       })
       .then(({ paymentIntent }) => {
-        // paymenyIntent = paymnet confirmation
+        // paymenyIntent = payment confirmation
+        db.collection("users")
+          .doc(user?.uid)
+          .collection("orders")
+          .doc(paymentIntent.id)
+          .set({
+            basket,
+            amount: paymentIntent.amount,
+            created: paymentIntent.created,
+          });
+
         setSucceeded(true);
         setError(null);
         setProcessing(false);
 
-        history.replaceState("/orders");
+        dispath({
+          type: "EMPTY_BASKET",
+        });
+
+        history.replace("/orders");
       });
   };
 
